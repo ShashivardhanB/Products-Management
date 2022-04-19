@@ -198,10 +198,10 @@ const updateCart = async function (req, res) {
         if (arrayOfItems.length == 0) {
             return res.status(400).send({ status: false, message: "items is empty noting to update" })
         }
-        for (i = 0; i <= arrayOfItems.length; i++) {
-            if (arrayOfItems[i].productId == productId) {
-                console.log(arrayOfItems[i].productId == productId)
+        for (i = 0; i < arrayOfItems.length; i++) {
+        
 
+            if (arrayOfItems[i].productId == productId ) {
                 if (removeProduct == 0 || isCartExists.items[i].quantity == 1) {
                     const finalFilterToDelete = {
                         $pull: { items: { productId: productId } },
@@ -229,9 +229,8 @@ const updateCart = async function (req, res) {
 
             }
 
-
         }
-        return res.status(400).send({ status: false, message: "No products found with productId in cart" })
+        return res.status(404).send({ status: false, message: "No products found with productId in cart" })
 
     } catch (err) {
         return res.status(500).send({ status: false, message: err.message })
