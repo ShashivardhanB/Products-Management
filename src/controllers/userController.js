@@ -184,6 +184,10 @@ const updateProfile = async function (req, res) {
         const requestBody = req.body
         const userId = req.params.userId
 
+        if(!validator.isValidRequestBody(requestBody)){
+            return res.status(400).send({status:false,mesaage:"invalid body"})
+        }
+
 //authorization
         if (req.userId !== userId) {
             return res.status(403).send({ status: false, mesaage: "you are not authorizated" })

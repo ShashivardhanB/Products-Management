@@ -33,13 +33,13 @@ const createProduct = async function (req, res) {
             }
         }
 
-        if (requestBody.hasOwnProperty(isDeleted)) {
+        if (validator.isValidString(isDeleted)) {
             if (isDeleted !== 'true' && isDeleted !== 'false') {
                 return res.status(400).send({ status: false, message: "isdeleted  must be in boolean" })
             }
         }
 
-        if (isFreeShipping) {
+        if (validator.isValidString(isFreeShipping)) {
             if (isFreeShipping !== 'true' && isFreeShipping != 'false') {
                 return res.status(400).send({ status: false, message: "isFreeShipping  must be in boolean" })
             }
@@ -80,6 +80,7 @@ const createProduct = async function (req, res) {
         }
 
         // checking the available size is correct or not
+        console.log(availableSizes)
         let availableSizesInArray = availableSizes.map(x => x.trim())
 
         for (let i = 0; i < availableSizesInArray.length; i++) {
@@ -158,9 +159,7 @@ const productsDetails = async function (req, res) {
 
                 return res.status(200).send({ status: true, message: "products with sorted price", data: fillteredProductsWithPriceSort })
             }
-        } else {
-            return res.status(400).send({ status: false, message: "pricesort must to 1 or -1" })
-        }
+        } 
 
         //   if there is not priceSort 
         const fillteredProducts = await productModel.find({ $and: finalFilter })

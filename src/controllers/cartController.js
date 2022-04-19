@@ -79,7 +79,7 @@ const createCart = async function (req, res) {
                     finalFilter[`items.${i}.quantity`] = quantity + arrayOfItems[i].quantity
 
                     const productToDeleteFromCart = await cartModel.findOneAndUpdate({ items: { $elemMatch: { productId: arrayOfItems[i].productId } } }, { $set: finalFilter }, { new: true })
-                    return res.send({ productToDeleteFromCart })
+                    return res.status(200).send({ status:true,message:"product add to cart successfully",data:productToDeleteFromCart })
                 }
             }
             //  storing in a variable what we need to update 

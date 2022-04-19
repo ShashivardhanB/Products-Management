@@ -51,7 +51,7 @@ const productSchema = new mongoose.Schema({
 
     installments: {
         type: Number,
-        required:true
+
 
     },
     deletedAt: {
