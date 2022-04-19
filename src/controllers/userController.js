@@ -11,13 +11,19 @@ const awsFile = require('../aws/aws');
 
 const createUser = async function (req, res) {
 
-    try {
-        const requestBody = req.body
-
-        let { fname, lname, email, phone, profileImage, password, address } = requestBody        //distructing the requestBody
 
 
-        //validating the requestBody
+
+
+    
+        try{
+            let files = req.files
+            const requestBody = req.body
+           
+    
+            let { fname,lname,email,profileImage,phone,password,address} = requestBody
+    
+     //validating the requestBody
         if (!validator.isValidString(fname)) {
             return res.status(400).send({ status: false, message: "first name is mandatory " })
         }
@@ -41,58 +47,58 @@ const createUser = async function (req, res) {
             return res.status(400).send({ status: false, message: "All feilds are mandatory in shipping address " })
         }
         if (!validator.isValidString(address.billing.street) || !validator.isValidString(address.billing.city) || !validator.isValidNumber(address.billing.pincode)) {
-            return res.status(400).send({ status: false, message: "All feilds are mandatory in shipping address " })
+            return res.status(400).send({ status: false, message: "All feilds are mandatory in billing  address " })
         }
 
         //checking the email is valid or not
         if (!/^([a-z0-9\.-]+)@([a-z0-9-]+).([a-z]+)$/.test(email.trim())) {
             return res.status(400).send({ status: false, message: "EMAIL is not valid" })
         }
+       
 
         // checking the phone number is valid or not
-        if (!(!isNaN(phone)) && /^(?:(?:\+|0{0,2})91(\s*[\ -]\s*)?|[0]?)?[789]\d{9}|(\d[ -]?){10}\d$/.test(phone.trim())) {
+        if (isNaN(phone)  || !(/^(\+91)?(-)?\s*?(91)?\s*?([6-9]{1}\d{2})-?\s*?(\d{3})-?\s*?(\d{4})$/.test(phone.trim()))) {
             return res.status(400).send({
-                status: false, message: " PHONE NUMBER is not a valid mobile number",
+                status: false, message: " PHONE NUMBER is not a valid  number",
             });
         }
+
+        // checking for password length 
+        if (password.length < 8 || password.length > 15) {
+            return res.status(400).send({ status: false, mesaage: "password length should be inbetween 8 and 15 " })
+        }
+
         // checking the email already used or not
         const isEmailAlreadyUsed = await userModel.findOne({ email })
         if (isEmailAlreadyUsed) {
             return res.status(400).send({ status: false, message: "email already used " })
         }
+
         // checking the phone already used or not
         const isphoneNumberAlreadyUsed = await userModel.findOne({ phone })
         if (isphoneNumberAlreadyUsed) {
             return res.status(400).send({ status: false, message: "phone Number already used " })
         }
-
-        //creating the AWS link
-        let files = req.files
-        if (files && files.length > 0) {                               // checking file is exist or not
-            profileImage = await awsFile.uploadFile(files[0])
-        } else {
+    
+        if (files && files.length > 0) {  
+            requestBody['profileImage'] = await awsFile.uploadFile(files[0])
+        }else{
             return res.status(400).send({ status: false, message: "please provide profile pic " })
-
         }
-        //hashing the password by using bcrypt
-        const salt = bcrypt.genSaltSync(saltRounds);
-        const hashPassword = await bcrypt.hash(password, salt);
+           //hashing the password by using bcrypt
+           const salt = bcrypt.genSaltSync(saltRounds);
+          requestBody['password']= await bcrypt.hash(password, salt);
+    
+    
+            let user = await userModel.create(requestBody)
+            res.status(201).send({ status: true, message: 'User created successfully', data: user })
+    
+            }
+            catch (err) {
+                res.status(500).send({ error: err.message })
+            }
+    
 
-        let userData = {
-            fname: fname,
-            lname: lname,
-            email: email,
-            profileImage: profileImage,
-            phone: phone,
-            password: hashPassword,
-            address: address
-        }
-        const userCreated = await userModel.create(userData)                        //creating the user
-        return res.status(201).send({ status: true, message: "User created successfully", data: userCreated })
-
-    } catch (err) {
-        res.status(500).send({ mesaage: err.mesaage })
-    }
 }
 
 //*********************************************************Login API************************************************************
@@ -117,6 +123,10 @@ const userLogin = async function (req, res) {
         }
         if (!validator.isValidString(password)) {
             return res.status(400).send({ status: false, mesaage: "provide password" })
+        }
+        // checking for password length 
+        if (password.length < 8 || password.length > 15) {
+            return res.status(400).send({ status: false, mesaage: "password length should be inbetween 8 and 15 " })
         }
 
 
@@ -184,11 +194,11 @@ const updateProfile = async function (req, res) {
         const requestBody = req.body
         const userId = req.params.userId
 
-        if(!validator.isValidRequestBody(requestBody)){
-            return res.status(400).send({status:false,mesaage:"invalid body"})
+        if (!validator.isValidRequestBody(requestBody)) {
+            return res.status(400).send({ status: false, mesaage: "invalid body" })
         }
 
-//authorization
+        //authorization
         if (req.userId !== userId) {
             return res.status(403).send({ status: false, mesaage: "you are not authorizated" })
         }
@@ -197,7 +207,7 @@ const updateProfile = async function (req, res) {
 
         let finalFilter = {}
 
-//checking that input and  if valid assigning (key value)to the finalFilter to update
+        //checking that input and  if valid assigning (key value)to the finalFilter to update
         if (validator.isValidString(fname)) {
             finalFilter["fname"] = fname
         }
@@ -227,13 +237,19 @@ const updateProfile = async function (req, res) {
             }
             finalFilter["phone"] = phone
         }
+        // checking for password length 
+
         if (validator.isValidString(password)) {
+            if (password.length < 8 || password.length > 15) {
+                return res.status(400).send({ status: false, mesaage: "password length should be inbetween 8 and 15 " })
+            }
             const salt = bcrypt.genSaltSync(saltRounds);
             const hashPassword = await bcrypt.hash(password, salt);
             finalFilter["password"] = hashPassword
         }
 
         if (validator.isValidString(address)) {
+
             if (validator.isValidString(address.shipping)) {
 
                 if (address.shipping.street) {
@@ -258,7 +274,6 @@ const updateProfile = async function (req, res) {
             }
 
             if (validator.isValidString(address.billing)) {
-
                 if (address.billing.street) {
                     if (!validator.isValidString(address.billing.street)) {
                         return res.status(400).send({ status: false, mesaage: " billing street must be valid" })
@@ -271,7 +286,6 @@ const updateProfile = async function (req, res) {
                     }
                     finalFilter["address.billing.pincode"] = address.billing.pincode
                 }
-
                 if (address.billing.city) {
                     if (!validator.isValidString(address.billing.city)) {
                         return res.status(400).send({ status: false, mesaage: "city must be string" })
@@ -281,20 +295,18 @@ const updateProfile = async function (req, res) {
             }
         }
 
-       // creating the aws link to update           
+        // creating the aws link to update           
         let files = req.files
         if (files) {
             if (files && files.length > 0) {
 
-                const profileImage = await uploadFile(files[0])
+                const profileImage = await awsFile.uploadFile(files[0])
 
                 if (profileImage) {
                     finalFilter["profileImage"] = profileImage
                 }
             }
         }
-
-
         const postData = await userModel.findOneAndUpdate({ _id: userId }, { $set: finalFilter }, { new: true })
 
         return res.status(200).send({ status: true, message: "User profile updated", data: postData })

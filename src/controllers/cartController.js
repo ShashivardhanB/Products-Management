@@ -24,7 +24,7 @@ const createCart = async function (req, res) {
         if (!validator.isValidNumber(quantity)) {
             return res.status(400).send({ status: false, message: "quantity must be number and present" })
         }
-        if (quantity < 0) {
+        if (quantity < 1) {
             return res.status(400).send({ status: false, message: "quantity must greater than zero" })
         }
 
@@ -57,8 +57,8 @@ const createCart = async function (req, res) {
                 return res.status(404).send({ status: false, message: "cart data not found" })
             }
 
-            if(isCartExists.userId != userId){
-                return res.status({status:false,message:"this cart is not belongs to this userid "})
+            if (isCartExists.userId != userId) {
+                return res.status({ status: false, message: "this cart is not belongs to this userid " })
             }
 
             // calculating  the total price   
@@ -189,8 +189,8 @@ const updateCart = async function (req, res) {
             return res.status(404).send({ status: false, message: "cart data not found" })
         }
 
-        if(isCartExists.userId != userId){
-            return res.status({status:false,message:"this cart is not belongs to this userid "})
+        if (isCartExists.userId != userId) {
+            return res.status({ status: false, message: "this cart is not belongs to this userid " })
         }
         // ---------------------------------------------------------------------------------------------
         let arrayOfItems = isCartExists.items
@@ -206,9 +206,8 @@ const updateCart = async function (req, res) {
                     const finalFilterToDelete = {
                         $pull: { items: { productId: productId } },
                         totalPrice: isCartExists.totalPrice - isProductExists.price * isCartExists.items[i].quantity,
-                        totalItems: isCartExists.totalItems - isCartExists.items[i].quantity
+                        totalItems: isCartExists.totalItems - 1
                     }
-
 
                     const productToDeleteFromCart = await cartModel.findOneAndUpdate({ items: { $elemMatch: { productId: arrayOfItems[i].productId } } }, finalFilterToDelete, { new: true })
                     return res.status(200).send({ status: true, message: "product successfully removed", data: productToDeleteFromCart })
@@ -218,7 +217,7 @@ const updateCart = async function (req, res) {
 
                 const finalFilterToremoveQuantity = {
                     totalPrice: isCartExists.totalPrice - isProductExists.price,
-                   
+
                 }
 
                 finalFilterToremoveQuantity[`items.${i}.quantity`] = isCartExists.items[i].quantity - 1
@@ -230,9 +229,9 @@ const updateCart = async function (req, res) {
 
             }
 
-            return res.status(400).send({ status: false, message: "No products found with productId in cart" })
 
         }
+        return res.status(400).send({ status: false, message: "No products found with productId in cart" })
 
     } catch (err) {
         return res.status(500).send({ status: false, message: err.message })
@@ -300,6 +299,10 @@ const deleteCart = async function (req, res) {
             return res.status(404).send({ status: false, message: "cart data not found" })
         }
 
+        if (isCartExists.items.length == 0) {
+            return res.status(400).send({ status: false, message: "items is already empty" })
+        }
+
         const finalFilterForDeleting = {
             items: [],
             totalItems: 0,
@@ -308,7 +311,7 @@ const deleteCart = async function (req, res) {
 
         const cartDeletion = await cartModel.findOneAndUpdate({ _id: isCartExists._id }, finalFilterForDeleting, { new: true })
 
-        return res.status(204).send({ status: true, message: "cart details deleted successfully", data: cartDeletion })
+        return res.status(200).send({ status: true, message: "cart details deleted successfully", data: cartDeletion })
 
 
 

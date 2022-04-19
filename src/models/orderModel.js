@@ -6,13 +6,15 @@ const orderSchema = mongoose.Schema({
     userId: {
         type: ObjectId,
         ref: "user",
-        required: true
+        required: true,
+        trim:true
     },
     items: [{
         productId: {
             type: ObjectId,
             ref: "product",
-            required: true
+            required: true,
+            trim:true
         },
         quantity: {
             type: Number,
@@ -40,6 +42,7 @@ const orderSchema = mongoose.Schema({
         type: String,
         required: true,
         default:"pending",
+        trim:true,
         enum: ["pending", "completed", "cancelled"]
     },
     deletedAt: {

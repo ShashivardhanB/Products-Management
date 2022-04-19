@@ -9,7 +9,6 @@ const awsFile = require('../aws/aws')
 const createProduct = async function (req, res) {
 
     try {
-
         const requestBody = req.body
         const { title, description, price, currencyId, currencyFormat,                                  //Destructuring the requestBody
             isFreeShipping, style, availableSizes, installments, isDeleted } = requestBody
@@ -32,7 +31,6 @@ const createProduct = async function (req, res) {
                 return res.status(400).send({ status: false, message: " installment   must be number" })
             }
         }
-
         if (validator.isValidString(isDeleted)) {
             if (isDeleted !== 'true' && isDeleted !== 'false') {
                 return res.status(400).send({ status: false, message: "isdeleted  must be in boolean" })
@@ -84,7 +82,7 @@ const createProduct = async function (req, res) {
         let availableSizesInArray = availableSizes.map(x => x.trim())
 
         for (let i = 0; i < availableSizesInArray.length; i++) {
-            if (!(["S", "XS", "M", "X", "L", "XXL", "XL"].includes(availableSizesInArray[i]))) {
+            if (["S", "XS", "M", "X", "L", "XXL", "XL"].indexOf(availableSizesInArray[i]) == -1) {
                 return res.status(400).send({ status: false, message: "AvailableSizes contains ['S','XS','M','X','L','XXL','XL'] only" })
             } else {
                 requestBody["availableSizes"] = availableSizesInArray
@@ -116,10 +114,7 @@ const productsDetails = async function (req, res) {
 
         const requestQuery = req.query
 
-        const priceSort = requestQuery.priceSort
-
-        const { size, name, priceGreaterThan, priceLessThan } = requestQuery                  // distructing the requestQuery
-
+        const { size, name, priceGreaterThan, priceLessThan ,priceSort} = requestQuery                  // distructing the requestQuery
 
         const finalFilter = [{ isDeleted: false }]
 
@@ -128,10 +123,14 @@ const productsDetails = async function (req, res) {
             finalFilter.push({ title: { $regex: name, $options: 'i' } })
         }
         if (validator.isValidString(size)) {
-            if (!(["S", "XS", "M", "X", "L", "XXL", "XL"].includes(size))) {
+            if (["S", "XS", "M", "X", "L", "XXL", "XL"].indexOf(size) == -1) {
                 return res.status(400).send({ status: false, message: "please enter valid size  " })
             }
             finalFilter.push({ availableSizes: size })
+        }
+
+        if(Array.isArray(priceSort)){
+            return res.status(400).send({status:false,message:"only give one priceSort value i.e 1 or-1"})
         }
 
         if (validator.isValidNumber(priceGreaterThan)) {
@@ -142,7 +141,6 @@ const productsDetails = async function (req, res) {
 
             finalFilter.push({ price: { $lt: priceLessThan } })
         }
-
 
         // if there is priceSort to sort the doc 
         if (priceSort) {
@@ -178,6 +176,7 @@ const productsDetails = async function (req, res) {
 }
 
 
+
 const getProductsById = async function (req, res) {
 
     try {
@@ -191,7 +190,7 @@ const getProductsById = async function (req, res) {
         const productData = await productModel.findOne({ _id: productId, isDeleted: false })
 
         if (!productData) {
-            return res.status(404).send({ status: true, message: "no data found" })
+            return res.status(404).send({ status: false, message: "no data found" })
         }
 
         return res.status(200).send({ status: true, message: "product By Id ", data: productData })
@@ -241,7 +240,6 @@ const updateProduct = async function (req, res) {
         }
 
 
-
         if (price) {
             if (!validator.isValidNumber(price)) {
                 return res.status(400).send({ status: false, message: "please enter price and it must be number" })
@@ -249,14 +247,10 @@ const updateProduct = async function (req, res) {
             finalFilter["price"] = price
         }
 
-
-
         if (validator.isValidNumber(installments)) {
             // return res.status(400).send({ status: false, message: " installment   must be number" })
             finalFilter["installments"] = installments
         }
-
-
 
         if (validator.isValidString(isFreeShipping)) {
 

@@ -8,8 +8,12 @@ const createOrder = async function (req, res) {
         const userId = req.params.userId
         const requestBody = req.body
 
-        const { items, totalPrice, totalItems, status, cancellable } = requestBody
+        const { items, totalPrice, totalItems, status, cancellable,totalQuantity } = requestBody
 
+
+        if(!validator.isValidRequestBody(requestBody)){
+            return res.status(400).send({status:false,message:"requestBody is empty"})
+        }
         // authorization
         if (req.userId != userId) {
             return res.status(403).send({ status: false, message: "you are not authorized" })
@@ -23,6 +27,7 @@ const createOrder = async function (req, res) {
         if (!isUserExists) {
             return res.status(404).send({ status: false, message: "user data not found" })
         }
+
 
         requestBody['userId'] = userId
 
@@ -38,19 +43,10 @@ const createOrder = async function (req, res) {
             return res.status(400).send({ status: false, message: "totalItems should be number and it should not be zero" })
         }
 
-        let totalQuantity = 0
-        for (i = 0; i < items.length; i++) {
-            if (!validator.isValidObjectId(items[i].productId)) {
-                return res.status(400).send({ status: false, message: `productId at  index ${i} is not valid objectId ` })
-            }
-            if (!validator.isValidNumber(items[i].quantity)  || items[i].quantity == 0) {
-                return res.status(400).send({ status: false, message: `quantity at index ${i} is not a valid number` })
-            }
-            totalQuantity = totalQuantity + items[i].quantity
-                                      
+        if(!validator.isValidNumber(totalQuantity) || totalQuantity == 0){
+            return res.status(400).send({status:false,message:"totalQuantity should be number and it should not be zero"})
         }
-        requestBody['totalQuantity'] = totalQuantity
-
+    
         if (validator.isValidString(status)) {
             if (!(["pending", "completed", "cancelled"].includes(status))) {
                 return res.status(400).send({ status: false, message: "status is in valid" })
@@ -80,13 +76,22 @@ const updateOrder = async function (req, res) {
         const userId = req.params.userId
         const requestBody = req.body
 
-        const { orderId, status } = requestBody   
+        const { orderId, status } = requestBody  
+
+        if(!validator.isValidRequestBody(requestBody)){
+            return res.status(400).send({status:false,message:"requestBody is empty"})
+        } 
+
+       
+         if(!requestBody.hasOwnProperty('status')){
+            return res.status(400).send({status:false,message:"provide the status"})
+        }
+
 
         // authorization
         if (req.userId != userId) {
             return res.status(403).send({ status: false, message: "you are not authorized" })
         }
-
         if (!validator.isValidObjectId(userId)) {
             return res.status(400).send({ status: false, message: "userId is in valid" })
         }
@@ -109,18 +114,26 @@ const updateOrder = async function (req, res) {
         }
 
         if (validator.isValidString(status)) {
-            if (!(["pending", "completed", "cancelled"].includes(status))) {
+            if (["pending", "completed", "cancelled"].indexOf(status) == -1) {
                 return res.status(400).send({ status: false, message: "status is in valid" })
             }
         } else {
             return res.status(400).send({ status: false, message: "provide status for update" })
         }
-       
-        const updatedData = await orderModel.findOneAndUpdate({ _id: orderId, cancellable: true }, { status: status }, { new: true })
+          if(isOrderExists.status == status){
+              return res.status(400).send({status:false,message:`status is already ${status}, so you cant do change it again`})
+          }
 
-        if (!updatedData) {
-            return res.status(404).send({ status: false, message: "data not found for update" })
+        if(isOrderExists.cancellable == false && status  == "cancelled"){
+            return res.status(400).send({status:false,message:"this order is not cancellable"})
         }
+        
+        if(isOrderExists.status == "completed" &&  status == "cancelled") {
+            return res.status(400).send({status:false,message:"you cant cancelled the order because it already completed "})
+        } 
+        
+
+        const updatedData = await orderModel.findOneAndUpdate({ _id: orderId}, { status: status }, { new: true })
 
         return res.status(200).send({ status: true, message: "order updated successfully", data: updatedData })
 
