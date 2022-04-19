@@ -57,6 +57,10 @@ const createCart = async function (req, res) {
                 return res.status(404).send({ status: false, message: "cart data not found" })
             }
 
+            if(isCartExists.userId != userId){
+                return res.status({status:false,message:"this cart is not belongs to this userid "})
+            }
+
             // calculating  the total price   
             //totalPrice = product price(from product database) multiple by total number of quantity(from input)  and add totalPrice(from cart database)
             const totalPrice = isProductExists.price * quantity + isCartExists.totalPrice
@@ -79,7 +83,7 @@ const createCart = async function (req, res) {
                     finalFilter[`items.${i}.quantity`] = quantity + arrayOfItems[i].quantity
 
                     const productToDeleteFromCart = await cartModel.findOneAndUpdate({ items: { $elemMatch: { productId: arrayOfItems[i].productId } } }, { $set: finalFilter }, { new: true })
-                    return res.status(200).send({ status:true,message:"product add to cart successfully",data:productToDeleteFromCart })
+                    return res.status(200).send({ status: true, message: "product add to cart successfully", data: productToDeleteFromCart })
                 }
             }
             //  storing in a variable what we need to update 
@@ -104,7 +108,7 @@ const createCart = async function (req, res) {
 
         //     if the user is created the  cart but not give in requestBody
         const isCartAlreadyCreated = await cartModel.findOne({ userId: userId })
-        if (!isCartAlreadyCreated) {
+        if (isCartAlreadyCreated) {
             return res.status(400).send({ status: false, message: "cart already created please provide cartId" })
 
         }
@@ -185,8 +189,15 @@ const updateCart = async function (req, res) {
             return res.status(404).send({ status: false, message: "cart data not found" })
         }
 
+        if(isCartExists.userId != userId){
+            return res.status({status:false,message:"this cart is not belongs to this userid "})
+        }
         // ---------------------------------------------------------------------------------------------
         let arrayOfItems = isCartExists.items
+        console.log(arrayOfItems)
+        if (arrayOfItems.length == 0) {
+            return res.status(400).send({ status: false, message: "items is empty noting to update" })
+        }
         for (i = 0; i <= arrayOfItems.length; i++) {
             if (arrayOfItems[i].productId == productId) {
                 console.log(arrayOfItems[i].productId == productId)
@@ -203,9 +214,11 @@ const updateCart = async function (req, res) {
                     return res.status(200).send({ status: true, message: "product successfully removed", data: productToDeleteFromCart })
                 }
 
+
+
                 const finalFilterToremoveQuantity = {
                     totalPrice: isCartExists.totalPrice - isProductExists.price,
-                    totalItems: isCartExists.totalItems - 1,
+                   
                 }
 
                 finalFilterToremoveQuantity[`items.${i}.quantity`] = isCartExists.items[i].quantity - 1
@@ -295,7 +308,7 @@ const deleteCart = async function (req, res) {
 
         const cartDeletion = await cartModel.findOneAndUpdate({ _id: isCartExists._id }, finalFilterForDeleting, { new: true })
 
-        return res.status(204).send({ status: false, message: "cart deleted successfully", data: cartDeletion })
+        return res.status(204).send({ status: true, message: "cart details deleted successfully", data: cartDeletion })
 
 
 
@@ -304,6 +317,7 @@ const deleteCart = async function (req, res) {
     }
 
 }
+
 
 
 module.exports = { createCart, updateCart, getCartDetails, deleteCart }

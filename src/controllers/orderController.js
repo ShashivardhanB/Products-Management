@@ -122,14 +122,12 @@ const updateOrder = async function (req, res) {
             return res.status(404).send({ status: false, message: "data not found for update" })
         }
 
-        return res.status(200).send({ status: true, message: "order Cancelled successfully", data: updatedData })
+        return res.status(200).send({ status: true, message: "order updated successfully", data: updatedData })
 
     } catch (err) {
         return res.status(500).send({ status: false, message: err.message })
     }
 }
-
-
 
 
 
