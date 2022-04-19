@@ -8,13 +8,13 @@ const cartSchema = new mongoose.Schema({
 
     userId: {
         type: ObjectId,
-        ref: "User",
+        ref: "user",
         required: true,
         unique: true,
         trim:true
     },
 items:[{
-          productId:{type:ObjectId,ref:"Product",required:true,trim:true},
+          productId:{type:ObjectId,ref:"product",required:true,trim:true},
     quantity:{type:Number,required:true,min:1}
 }],
 totalPrice:{type:Number,required:true},
@@ -23,4 +23,4 @@ totalItems:{type:Number,required:true}
 
 })
 
-module.exports = mongoose.model("Cart", cartSchema)
+module.exports = mongoose.model("cart", cartSchema)
