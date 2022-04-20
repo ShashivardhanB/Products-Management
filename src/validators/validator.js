@@ -13,7 +13,7 @@ const isValidString = function (value) {
 const isValidNumber = function (value) {
 
   if (typeof value === 'undefined' || value === null) return false
-  if (  isNaN(value)    ) return false
+  if (  isNaN(value)  ) return false
   if(value.toString().trim().length == 0) return false
   return true;
 }
