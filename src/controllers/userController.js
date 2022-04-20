@@ -39,10 +39,10 @@ const createUser = async function (req, res) {
         }
 
         if (!validator.isValidString(address.shipping.street) || !validator.isValidString(address.shipping.city) || !validator.isValidNumber(address.shipping.pincode)) {
-            return res.status(400).send({ status: false, message: "All feilds are mandatory in shipping address " })
+            return res.status(400).send({ status: false, message: "All feilds are mandatory in shipping address and make sure all are valid " })
         }
         if (!validator.isValidString(address.billing.street) || !validator.isValidString(address.billing.city) || !validator.isValidNumber(address.billing.pincode)) {
-            return res.status(400).send({ status: false, message: "All feilds are mandatory in billing  address " })
+            return res.status(400).send({ status: false, message: "All feilds are mandatory in billing  address and make sure all are valid " })
         }
 
         //checking the email is valid or not

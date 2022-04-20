@@ -157,7 +157,7 @@ const productsDetails = async function (req, res) {
 
                 return res.status(200).send({ status: true, message: "products with sorted price", data: fillteredProductsWithPriceSort })
             }
-        } 
+        }
 
         //   if there is not priceSort 
         const fillteredProducts = await productModel.find({ $and: finalFilter })
@@ -284,7 +284,7 @@ const updateProduct = async function (req, res) {
 
         // availableSize is in requstBody then
         if (availableSizes) {
-             // checking the length it should not be zero
+            // checking the length it should not be zero
             if (availableSizes.length == 0) {
                 return res.status(400).send({ status: false, message: "availableSizes should not be empty" })
             }
