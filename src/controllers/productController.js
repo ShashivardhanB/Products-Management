@@ -297,7 +297,7 @@ const updateProduct = async function (req, res) {
                 //itearting to access every element to check it is valid or not
                 for (let i = 0; i < availableSizesInArray.length; i++) {
 
-                    if (!(["S", "XS", "M", "X", "L", "XXL", "XL"].includes(availableSizesInArray[i]))) {
+                    if (["S", "XS", "M", "X", "L", "XXL", "XL"].indexOf(availableSizesInArray[i]) == -1) {
                         return res.status(400).send({ status: false, message: "AvailableSizes contains ['S','XS','M','X','L','XXL','XL'] only" })
                     } else {
                         finalFilter["availableSizes"] = availableSizesInArray
@@ -307,7 +307,6 @@ const updateProduct = async function (req, res) {
                 return res.status(400).send({ status: false, message: "avaliableSize should be in array " })
             }
         }
-
 
         let files = req.files
         if (files && files.length > 0) {

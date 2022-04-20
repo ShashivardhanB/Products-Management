@@ -10,11 +10,6 @@ const awsFile = require('../aws/aws');
 // *************************************************Create User API ************************************************************//
 
 const createUser = async function (req, res) {
-
-
-
-
-
     
         try{
             let files = req.files
