@@ -105,8 +105,7 @@ const createProduct = async function (req, res) {
     }
 }
 
-
-// ---------------------------------------------------------------------------------------------------------------------------------
+//**********************************************************Product Details*************************************************************** */
 
 const productsDetails = async function (req, res) {
 
@@ -114,7 +113,7 @@ const productsDetails = async function (req, res) {
 
         const requestQuery = req.query
 
-        const { size, name, priceGreaterThan, priceLessThan ,priceSort} = requestQuery                  // distructing the requestQuery
+        const { size, name, priceGreaterThan, priceLessThan, priceSort } = requestQuery                  // distructing the requestQuery
 
         const finalFilter = [{ isDeleted: false }]
 
@@ -129,8 +128,8 @@ const productsDetails = async function (req, res) {
             finalFilter.push({ availableSizes: size })
         }
 
-        if(Array.isArray(priceSort)){
-            return res.status(400).send({status:false,message:"only give one priceSort value i.e 1 or-1"})
+        if (Array.isArray(priceSort)) {
+            return res.status(400).send({ status: false, message: "only give one priceSort value i.e 1 or-1" })
         }
 
         if (validator.isValidNumber(priceGreaterThan)) {
@@ -175,8 +174,7 @@ const productsDetails = async function (req, res) {
 
 }
 
-
-
+// *******************************************************product Details By Id******************************************************//
 const getProductsById = async function (req, res) {
 
     try {
@@ -199,6 +197,9 @@ const getProductsById = async function (req, res) {
         return res.status(500).send({ status: false, message: err.message })
     }
 }
+
+
+//**********************************************Update Product***************************************************************** */
 
 
 const updateProduct = async function (req, res) {
@@ -230,10 +231,8 @@ const updateProduct = async function (req, res) {
                 return res.status(400).send({ status: false, message: "title already used" })
             }
             finalFilter["title"] = title
-            // return res.status(400).send({ status: false, message: "please enter title" })
+
         }
-
-
 
         if (validator.isValidString(description)) {
             finalFilter["description"] = description
@@ -248,7 +247,6 @@ const updateProduct = async function (req, res) {
         }
 
         if (validator.isValidNumber(installments)) {
-            // return res.status(400).send({ status: false, message: " installment   must be number" })
             finalFilter["installments"] = installments
         }
 
@@ -328,7 +326,7 @@ const updateProduct = async function (req, res) {
 
 
 
-
+//*********************************************************Deleted Product************************************************ */
 const deleteProductByProductId = async function (req, res) {
     try {
 
@@ -351,9 +349,6 @@ const deleteProductByProductId = async function (req, res) {
     }
 
 }
-
-
-
 
 
 

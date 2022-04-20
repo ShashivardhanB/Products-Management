@@ -3,6 +3,10 @@ const userModel = require('../models/userModel')
 const validator = require('../validators/validator')
 
 
+
+
+
+//*************************************************Create Order************************************************************** */
 const createOrder = async function (req, res) {
     try {
         const userId = req.params.userId
@@ -67,7 +71,7 @@ const createOrder = async function (req, res) {
 }
 
 
-// -----------------------------------------------------------------------------------------------------------------------
+// **********************************************Update Order ****************************************************************************
 
 
 const updateOrder = async function (req, res) {

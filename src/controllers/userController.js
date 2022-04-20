@@ -159,6 +159,11 @@ const userDetails = async function (req, res) {
 
         const userId = req.params.userId
 
+         //authorization
+         if (req.userId !== userId) {
+            return res.status(403).send({ status: false, mesaage: "you are not authorizated" })
+        }
+
         //validating the userId
         if (!validator.isValidObjectId(userId)) {
             return res.status(400).send({ status: false, message: "please enter valid  userId" })
@@ -232,6 +237,7 @@ const updateProfile = async function (req, res) {
             }
             finalFilter["phone"] = phone
         }
+
         // checking for password length 
 
         if (validator.isValidString(password)) {

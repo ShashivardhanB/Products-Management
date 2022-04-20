@@ -5,7 +5,7 @@ const userModel = require('../models/userModel')
 const validator = require('../validators/validator')
 
 
-
+//************************************************Create Cart***************************************************** */
 const createCart = async function (req, res) {
     try {
 
@@ -86,6 +86,8 @@ const createCart = async function (req, res) {
                     return res.status(200).send({ status: true, message: "product add to cart successfully", data: productToDeleteFromCart })
                 }
             }
+
+            //when the productId do not exists in cart
             //  storing in a variable what we need to update 
             const cartDataToAddProduct = {
                 $push: { items: [{ productId: productId, quantity: quantity }] },      //by using $push we will push the productid and quantity in items Array
@@ -140,7 +142,7 @@ const createCart = async function (req, res) {
 }
 
 
-// -------------------------------------------------------------------------------------------------------------------------
+//************************************************************Update Cart************************************************************* */
 
 
 const updateCart = async function (req, res) {
@@ -192,6 +194,7 @@ const updateCart = async function (req, res) {
         if (isCartExists.userId != userId) {
             return res.status({ status: false, message: "this cart is not belongs to this userid " })
         }
+        
         // ---------------------------------------------------------------------------------------------
         let arrayOfItems = isCartExists.items
         console.log(arrayOfItems)
@@ -240,7 +243,7 @@ const updateCart = async function (req, res) {
 
 
 
-
+//******************************************************Cart Details****************************************************************** */
 
 const getCartDetails = async function (req, res) {
     try {
@@ -273,7 +276,7 @@ const getCartDetails = async function (req, res) {
     }
 
 }
-// ---------------------------------------------------------------------
+//*********************************************Delete Cart**************************************************************** */
 
 const deleteCart = async function (req, res) {
     try {
