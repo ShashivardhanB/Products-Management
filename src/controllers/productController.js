@@ -278,8 +278,6 @@ const updateProduct = async function (req, res) {
         }
 
 
-
-
         // availableSize is in requstBody then
         if (availableSizes) {
             // checking the length it should not be zero
