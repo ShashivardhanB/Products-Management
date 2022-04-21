@@ -10,15 +10,15 @@ const awsFile = require('../aws/aws');
 // *************************************************Create User API ************************************************************//
 
 const createUser = async function (req, res) {
-    
-        try{
-            let files = req.files
-            const requestBody = req.body
-           
-    
-            let { fname,lname,email,profileImage,phone,password,address} = requestBody
-    
-     //validating the requestBody
+
+    try {
+        let files = req.files
+        const requestBody = req.body
+
+
+        let { fname, lname, email, phone, password, address } = requestBody
+
+        //validating the requestBody
         if (!validator.isValidString(fname)) {
             return res.status(400).send({ status: false, message: "first name is mandatory " })
         }
@@ -49,10 +49,10 @@ const createUser = async function (req, res) {
         if (!/^([a-z0-9\.-]+)@([a-z0-9-]+).([a-z]+)$/.test(email.trim())) {
             return res.status(400).send({ status: false, message: "EMAIL is not valid" })
         }
-       
+
 
         // checking the phone number is valid or not
-        if (isNaN(phone)  || !(/^(\+91)?(-)?\s*?(91)?\s*?([6-9]{1}\d{2})-?\s*?(\d{3})-?\s*?(\d{4})$/.test(phone.trim()))) {
+        if (isNaN(phone) || !(/^(\+91)?(-)?\s*?(91)?\s*?([6-9]{1}\d{2})-?\s*?(\d{3})-?\s*?(\d{4})$/.test(phone.trim()))) {
             return res.status(400).send({
                 status: false, message: " PHONE NUMBER is not a valid  number",
             });
@@ -74,25 +74,25 @@ const createUser = async function (req, res) {
         if (isphoneNumberAlreadyUsed) {
             return res.status(400).send({ status: false, message: "phone Number already used " })
         }
-    
-        if (files && files.length > 0) {  
+
+        if (files && files.length > 0) {
             requestBody['profileImage'] = await awsFile.uploadFile(files[0])
-        }else{
+        } else {
             return res.status(400).send({ status: false, message: "please provide profile pic " })
         }
-           //hashing the password by using bcrypt
-           const salt = bcrypt.genSaltSync(saltRounds);
-          requestBody['password']= await bcrypt.hash(password, salt);
-    
-    
-            let user = await userModel.create(requestBody)
-            res.status(201).send({ status: true, message: 'User created successfully', data: user })
-    
-            }
-            catch (err) {
-                res.status(500).send({ error: err.message })
-            }
-    
+        //hashing the password by using bcrypt
+        const salt = bcrypt.genSaltSync(saltRounds);
+        requestBody['password'] = await bcrypt.hash(password, salt);
+
+
+        let user = await userModel.create(requestBody)
+        res.status(201).send({ status: true, message: 'User created successfully', data: user })
+
+    }
+    catch (err) {
+        res.status(500).send({ error: err.message })
+    }
+
 
 }
 
@@ -159,11 +159,6 @@ const userDetails = async function (req, res) {
 
         const userId = req.params.userId
 
-         //authorization
-         if (req.userId !== userId) {
-            return res.status(403).send({ status: false, mesaage: "you are not authorizated" })
-        }
-
         //validating the userId
         if (!validator.isValidObjectId(userId)) {
             return res.status(400).send({ status: false, message: "please enter valid  userId" })
@@ -171,13 +166,21 @@ const userDetails = async function (req, res) {
 
         //checking userId exists nor not
         const userData = await userModel.findById({ _id: userId })
+        if (!userData) {
+            return res.status(404).send({ status: false, message: "data not found" })
+        } 
+
+        //authorization
+        if (req.userId !== userId) {
+            return res.status(403).send({ status: false, mesaage: "you are not authorizated" })
+        }
 
         if (!userData) {
             return res.status(404).send({ status: false, message: "data not found" })
-        } else {
+        } 
 
-            return res.status(200).send({ status: true, message: "User profile details", data: userData })
-        }
+        return res.status(200).send({ status: true, message: "User profile details", data: userData })
+        
 
     } catch (err) {
         return res.status(500).send({ status: false, message: err.mesaage })
@@ -196,6 +199,11 @@ const updateProfile = async function (req, res) {
 
         if (!validator.isValidRequestBody(requestBody)) {
             return res.status(400).send({ status: false, mesaage: "invalid body" })
+        }
+
+        const isUserExists = await userModel.findById(userId)
+        if (!isUserExists) {
+            return res.status(404).send({ status: false, message: "user Data not found" })
         }
 
         //authorization

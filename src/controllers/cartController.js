@@ -28,11 +28,6 @@ const createCart = async function (req, res) {
             return res.status(400).send({ status: false, message: "quantity must greater than zero" })
         }
 
-        // authorization
-        if (req.userId != userId) {
-            return res.status(403).send({ status: false, message: "you are not authorized" })
-        }
-
         // checking the userId and productId exists or not  in database
         const isUserExists = await userModel.findById(userId)
         if (!isUserExists) {
@@ -41,6 +36,11 @@ const createCart = async function (req, res) {
         const isProductExists = await productModel.findOne({ _id: productId, isDeleted: false })
         if (!isProductExists) {
             return res.status(404).send({ status: false, message: "product data not found" })
+        }
+
+         // authorization
+         if (req.userId != userId) {
+            return res.status(403).send({ status: false, message: "you are not authorized" })
         }
 
         // --------------------------------------If cartId exist in requestBody----------------------------------------
@@ -173,10 +173,7 @@ const updateCart = async function (req, res) {
             }
         }
 
-        // authorization
-        if (req.userId != userId) {
-            return res.status(403).send({ status: false, message: "you are not authorized" })
-        }
+        
         // checking the userId , productId and cartId  exists or not  in database
         const isUserExists = await userModel.findById(userId)
         if (!isUserExists) {
@@ -191,9 +188,16 @@ const updateCart = async function (req, res) {
             return res.status(404).send({ status: false, message: "cart data not found" })
         }
 
+        // authorization
+        if (req.userId != userId) {
+            return res.status(403).send({ status: false, message: "you are not authorized" })
+        }
+
         if (isCartExists.userId != userId) {
             return res.status({ status: false, message: "this cart is not belongs to this userid " })
         }
+
+
         
         // ---------------------------------------------------------------------------------------------
         let arrayOfItems = isCartExists.items
@@ -291,6 +295,7 @@ const deleteCart = async function (req, res) {
         if (!isUserExists) {
             return res.status(404).send({ status: false, message: "user Data not found" })
         }
+
         // authorization
         if (req.userId != userId) {
             return res.status(403).send({ status: false, message: "you are not authorized" })

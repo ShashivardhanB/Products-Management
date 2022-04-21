@@ -71,7 +71,7 @@ const createProduct = async function (req, res) {
         }
         //validation ends 
 
-        //checking the user exists or not
+        //checking the title exists or not
         const isTitleAlreadyExists = await productModel.findOne({ title: title })
         if (isTitleAlreadyExists) {
             return res.status(400).send({ status: false, message: "title already used" })
