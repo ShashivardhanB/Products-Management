@@ -83,7 +83,7 @@ const createCart = async function (req, res) {
                     finalFilter[`items.${i}.quantity`] = quantity + arrayOfItems[i].quantity
 
                     const productToDeleteFromCart = await cartModel.findOneAndUpdate({ items: { $elemMatch: { productId: arrayOfItems[i].productId } } }, { $set: finalFilter }, { new: true })
-                    return res.status(200).send({ status: true, message: "product add to cart successfully", data: productToDeleteFromCart })
+                    return res.status(200).send({ status: true, message: "Success", data: productToDeleteFromCart })
                 }
             }
 
@@ -97,7 +97,7 @@ const createCart = async function (req, res) {
 
             // updating the new items and totalPrice and tOtalItems
             const addToCart = await cartModel.findOneAndUpdate({ _id: cartId }, cartDataToAddProduct, { new: true })
-            return res.status(200).send({ status: true, message: "product add to cart successfully", data: addToCart })
+            return res.status(200).send({ status: true, message: "Success", data: addToCart })
 
         }
         // ----------------------------------------------------------------------------------------------------------
@@ -126,7 +126,7 @@ const createCart = async function (req, res) {
 
         // creating the new cart with adding the products
         const cartCreation = await cartModel.create(cartDataToCreate)
-        return res.status(201).send({ status: true, message: "cart created", data: cartCreation })
+        return res.status(201).send({ status: true, message: "Success", data: cartCreation })
 
 
     } catch (err) {
