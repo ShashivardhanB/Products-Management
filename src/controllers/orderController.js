@@ -5,8 +5,6 @@ const validator = require('../validators/validator')
 
 
 
-
-
 //*************************************************Create Order************************************************************** */
 const createOrder = async function (req, res) {
     try {
@@ -15,9 +13,7 @@ const createOrder = async function (req, res) {
 
         const { cartId, status, cancellable } = requestBody
 
-        const finalFilter = {
-
-        }
+        const finalFilter = { }
 
         if (!validator.isValidRequestBody(requestBody)) {
             return res.status(400).send({ status: false, message: "requestBody is empty" })
@@ -149,11 +145,7 @@ const updateOrder = async function (req, res) {
         if (isOrderExists.status == "completed") {
             return res.status(400).send({ status: false, message: "order is completed you cant change it " })
         }
-
-        if (isOrderExists.status == status) {
-            return res.status(400).send({ status: false, message: `status is already ${status}, so you cant do change it again` })
-        }
-
+        
         if (isOrderExists.cancellable == false && status == "cancelled") {
             return res.status(400).send({ status: false, message: "this order is not cancellable" })
         }

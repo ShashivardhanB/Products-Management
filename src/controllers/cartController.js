@@ -45,7 +45,7 @@ const createCart = async function (req, res) {
 
         // --------------------------------------If cartId exist in requestBody----------------------------------------
 
-        if (cartId) {
+        if ('cartId' in req.body) {
 
             // validating the cartId
             if (!validator.isValidObjectId(cartId)) {
@@ -164,6 +164,8 @@ const updateCart = async function (req, res) {
             if (removeProduct !== 0 && removeProduct !== 1) {
                 return res.status(400).send({ status: false, message: "removeProduct  is must present and it should be Number i.e 0 or 1" })
             }
+        }else{
+            return res.status(400).send({status:false,message:"removeProduct is mandatory"})
         }
 
         

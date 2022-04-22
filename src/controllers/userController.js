@@ -67,19 +67,6 @@ const createUser = async function (req, res) {
 
         requestBody['address'] = address
 
-        //checking the email is valid or not
-        if (!validator.isValidEmail(email)) {
-            return res.status(400).send({ status: false, message: "EMAIL is not valid" })
-        }
-
-
-        // checking the phone number is valid or not
-        if (!validator.isValidPhoneNumber(phone)) {
-            return res.status(400).send({
-                status: false, message: " PHONE NUMBER is not a valid  number",
-            });
-        }
-
 
         // checking the email already used or not
         const isEmailAlreadyUsed = await userModel.findOne({ email })
@@ -101,11 +88,13 @@ const createUser = async function (req, res) {
             return res.status(400).send({ status: false, message: "please provide profile pic " })
         }
         //hashing the password by using bcrypt
+
         const salt = bcrypt.genSaltSync(saltRounds);
         requestBody['password'] = await bcrypt.hash(password, salt);
 
 
         let user = await userModel.create(requestBody)
+
         res.status(201).send({ status: true, message: 'Success', data: user })
 
     }
@@ -133,7 +122,8 @@ const userLogin = async function (req, res) {
         if (!validator.isValidRequestBody(requestBody)) {
             return res.status(400).send({ status: false, message: "provide email and password" })
         }
-        if (!validator.isValid(email)) {
+
+        if (!validator.isValidEmail(email)) {
             return res.status(400).send({ status: false, mesaage: "provide email" })
         }
         // checking for password length 
@@ -195,10 +185,6 @@ const userDetails = async function (req, res) {
             return res.status(403).send({ status: false, mesaage: "you are not authorizated" })
         }
 
-        if (!userData) {
-            return res.status(404).send({ status: false, message: "data not found" })
-        }
-
         return res.status(200).send({ status: true, message: "Success", data: userData })
 
 
@@ -219,6 +205,10 @@ const updateProfile = async function (req, res) {
 
         if (!validator.isValidRequestBody(requestBody)) {
             return res.status(400).send({ status: false, mesaage: "invalid body" })
+        }
+
+        if (!validator.isValidObjectId(userId)) {
+            return res.status(400).send({ status: false, message: "please enter valid  userId" })
         }
 
         const isUserExists = await userModel.findById(userId)
@@ -242,12 +232,14 @@ const updateProfile = async function (req, res) {
             }
             finalFilter["fname"] = fname
         }
+
         if ('lname' in req.body) {
             if (!validator.isValidChar(lname)) {
                 return res.status(400).send({ status: false, mesaage: "lastName is not valid to update" })
             }
             finalFilter["lname"] = lname
         }
+
 
         if ('email' in req.body) {
             if (!validator.isValidEmail(email)) {
@@ -263,7 +255,7 @@ const updateProfile = async function (req, res) {
 
 
         if ('phone' in req.body) {
-            if (!!validator.isValidPhoneNumber(phone)) {
+            if (!validator.isValidPhoneNumber(phone)) {
                 return res.status(400).send({ status: false, message: " phoneNumber is not valid to update" });
             }
             const isphoneNumberAlreadyUsed = await userModel.findOne({ phone,_id:{$ne:userId} })                           //checking the number already used

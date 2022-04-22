@@ -28,26 +28,22 @@ const createProduct = async function (req, res) {
         }
 
         if ('installments' in req.body) {
-            if (validator.isValid(installments)) {
-                if (!/^[0-9]$/.test(installments)) {
-                    return res.status(400).send({ status: false, message: " installment   must be number" })
-                }
+            if (!/^[0-9]$/.test(installments)) {
+                return res.status(400).send({ status: false, message: " installment   must be number" })
             }
-            else {
-                return res.status(400).send({ status: false, message: "installment   must be number and valid" })
-            }
+
         }
 
         if ('isDeleted' in req.body) {
-                if (isDeleted !== 'true' && isDeleted !== 'false') {
-                    return res.status(400).send({ status: false, message: "isDeleted  must be in boolean" })
-                }
+            if (isDeleted !== 'true' && isDeleted !== 'false') {
+                return res.status(400).send({ status: false, message: "isDeleted  must be in boolean" })
+            }
         }
 
         if ('isFreeShipping' in req.body) {
-                if (isFreeShipping !== 'true' && isFreeShipping != 'false') {
-                    return res.status(400).send({ status: false, message: "isFreeShipping  must be in boolean" })
-                }
+            if (isFreeShipping !== 'true' && isFreeShipping != 'false') {
+                return res.status(400).send({ status: false, message: "isFreeShipping  must be in boolean" })
+            }
         }
 
         if ('currencyId' in req.body) {
@@ -56,9 +52,9 @@ const createProduct = async function (req, res) {
             }
 
             requestBody['currencyFormat'] = getSymbolFromCurrency(currencyId)
-
-
-        } 
+        } else {
+            return res.status(400).send({ status: false, message: "currencyId is required" })
+        }
 
         if ('style' in req.body) {
             if (typeof style !== 'string') {
@@ -147,7 +143,7 @@ const productsDetails = async function (req, res) {
                 return res.status(400).send({ status: false, message: "provide the valid priceGreaterThan for filter" })
             }
         }
-        
+
         if ('priceLessThan' in req.query) {
             if (validator.isValidNumber(priceLessThan)) {
 
@@ -227,7 +223,7 @@ const updateProduct = async function (req, res) {
         const requestBody = req.body
         const productId = req.params.productId
 
-        const { title, description, price, isFreeShipping, 
+        const { title, description, price, isFreeShipping,
             style, availableSizes, installments } = requestBody                 // distructing the requestBody
 
         const finalFilter = {}
@@ -244,7 +240,7 @@ const updateProduct = async function (req, res) {
 
         if ('title' in req.body) {
             if (validator.isValidtitle(title)) {
-                const isTitleAlreadyExists = await productModel.findOne({ title: title ,_id:{$ne:productId}})
+                const isTitleAlreadyExists = await productModel.findOne({ title: title, _id: { $ne: productId } })
 
                 if (isTitleAlreadyExists) {
                     return res.status(400).send({ status: false, message: "title already used" })
@@ -255,6 +251,7 @@ const updateProduct = async function (req, res) {
                 return res.status(400).send({ status: false, message: "title should be valid to update" })
             }
         }
+
         if ('description' in req.body) {
             if (!validator.isValid(description)) {
                 return res.status(400).send({ status: false, message: "please enter price and it must be number" })
@@ -271,27 +268,17 @@ const updateProduct = async function (req, res) {
 
 
         if ('installments' in req.body) {
-            if (validator.isValid(installments)) {
-                if (!/^[0-9]$/.test(installments)) {
-                    return res.status(400).send({ status: false, message: " installment   must be number" })
-                }
-
-                finalFilter["installments"] = installments
-            } else {
-                return res.status(400).send({ status: false, message: "installment   must be number" })
+            if (!/^[0-9]$/.test(installments)) {
+                return res.status(400).send({ status: false, message: " installment   must be number" })
             }
+            finalFilter["installments"] = installments
         }
 
         if ('isFreeShipping' in req.body) {
-            if (validator.isValid(isFreeShipping)) {
-
-                if (isFreeShipping !== 'true' && isFreeShipping != 'false') {
-                    return res.status(400).send({ status: false, message: "isFreeShipping  must be in boolean to update " })
-                }
-                finalFilter["isFreeShipping"] = isFreeShipping
-            } else {
+            if (isFreeShipping !== 'true' && isFreeShipping != 'false') {
                 return res.status(400).send({ status: false, message: "isFreeShipping  must be in boolean to update " })
             }
+            finalFilter["isFreeShipping"] = isFreeShipping
         }
 
         if ('style' in req.body) {
@@ -305,21 +292,21 @@ const updateProduct = async function (req, res) {
         // availableSize is in requstBody then
 
         if ('availableSizes' in req.body) {
-            
-                // converting the string into array
-                let availableSizesInArray = availableSizes.split(",").map(x => x.trim())
-                //itearting to access every element to check it is valid or not
-                for (let i = 0; i < availableSizesInArray.length; i++) {
 
-                    if (["S", "XS", "M", "X", "L", "XXL", "XL"].indexOf(availableSizesInArray[i]) == -1) {
-                        return res.status(400).send({ status: false, message: "AvailableSizes contains ['S','XS','M','X','L','XXL','XL'] only" })
-                    } else {
-                        finalFilter["availableSizes"] = availableSizesInArray
-                    }
+            // converting the string into array
+            let availableSizesInArray = availableSizes.split(",").map(x => x.trim())
+            //itearting to access every element to check it is valid or not
+            for (let i = 0; i < availableSizesInArray.length; i++) {
+
+                if (["S", "XS", "M", "X", "L", "XXL", "XL"].indexOf(availableSizesInArray[i]) == -1) {
+                    return res.status(400).send({ status: false, message: "AvailableSizes contains ['S','XS','M','X','L','XXL','XL'] only" })
+                } else {
+                    finalFilter["availableSizes"] = availableSizesInArray
                 }
-            } 
-          
-        
+            }
+        }
+
+
 
         let files = req.files
         if (files && files.length > 0) {
@@ -327,10 +314,6 @@ const updateProduct = async function (req, res) {
         }
 
         const updatedProductDetails = await productModel.findOneAndUpdate({ _id: productId }, { $set: finalFilter }, { new: true })
-        if (!updatedProductDetails) {
-            return res.status(404).send({ status: false, message: "data not found" })
-        }
-
         return res.status(200).send({ status: true, message: "Success", data: updatedProductDetails })
 
     } catch (err) {
