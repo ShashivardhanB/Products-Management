@@ -65,7 +65,7 @@ const createCart = async function (req, res) {
             //totalPrice = product price(from product database) multiple by total number of quantity(from input)  and add totalPrice(from cart database)
             const totalPrice = isProductExists.price * quantity + isCartExists.totalPrice
 
-            // totalItems = quantity(from input) and add totalItems (from cart database)
+            // totalItems =  increase totalItems (from cart database) by 1
             const totalItems = isCartExists.totalItems + 1
 
 
