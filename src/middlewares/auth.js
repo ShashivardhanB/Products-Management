@@ -16,7 +16,7 @@ const auth = async function (req, res, next) {
 
         let decodetoken = jwt.verify(token, "project5shoppingCart")
   
-        console.log(decodetoken.userId)
+        
 
         req.userId = decodetoken.userId
         next()

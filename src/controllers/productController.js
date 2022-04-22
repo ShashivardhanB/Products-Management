@@ -1,6 +1,7 @@
 const productModel = require('../models/productModel')
 const validator = require('../validators/validator')
 const awsFile = require('../aws/aws')
+const getSymbolFromCurrency = require('currency-symbol-map')
 
 
 
@@ -10,15 +11,15 @@ const createProduct = async function (req, res) {
 
     try {
         const requestBody = req.body
-        const { title, description, price, currencyId, currencyFormat,                                  //Destructuring the requestBody
+        let { title, description, price, currencyId,                                  //Destructuring the requestBody
             isFreeShipping, style, availableSizes, installments, isDeleted } = requestBody
 
         //validating the requestBody
-        if (!validator.isValidString(title)) {
+        if (!validator.isValidtitle(title)) {
             return res.status(400).send({ status: false, message: "please enter title" })
         }
 
-        if (!validator.isValidString(description)) {
+        if (!validator.isValid(description)) {
             return res.status(400).send({ status: false, message: "please enter description" })
         }
 
@@ -26,47 +27,47 @@ const createProduct = async function (req, res) {
             return res.status(400).send({ status: false, message: "please enter price and it must be number" })
         }
 
-        if (installments) {
-            if (!validator.isValidNumber(installments)) {
-                return res.status(400).send({ status: false, message: " installment   must be number" })
+        if ('installments' in req.body) {
+            if (validator.isValid(installments)) {
+                if (!/^[0-9]$/.test(installments)) {
+                    return res.status(400).send({ status: false, message: " installment   must be number" })
+                }
             }
-        }
-        if (validator.isValidString(isDeleted)) {
-            if (isDeleted !== 'true' && isDeleted !== 'false') {
-                return res.status(400).send({ status: false, message: "isdeleted  must be in boolean" })
-            }
-        }
-
-        if (validator.isValidString(isFreeShipping)) {
-            if (isFreeShipping !== 'true' && isFreeShipping != 'false') {
-                return res.status(400).send({ status: false, message: "isFreeShipping  must be in boolean" })
+            else {
+                return res.status(400).send({ status: false, message: "installment   must be number and valid" })
             }
         }
 
-        if (validator.isValidString(currencyId)) {
+        if ('isDeleted' in req.body) {
+                if (isDeleted !== 'true' && isDeleted !== 'false') {
+                    return res.status(400).send({ status: false, message: "isDeleted  must be in boolean" })
+                }
+        }
+
+        if ('isFreeShipping' in req.body) {
+                if (isFreeShipping !== 'true' && isFreeShipping != 'false') {
+                    return res.status(400).send({ status: false, message: "isFreeShipping  must be in boolean" })
+                }
+        }
+
+        if ('currencyId' in req.body) {
             if (currencyId != "INR") {
                 return res.status(400).send({ status: false, message: "please provide valid currencyId i.e INR " })
             }
-        } else {
-            return res.status(400).send({ status: false, message: "please enter currencyId" })
-        }
 
-        if (validator.isValidString(currencyFormat)) {
-            if (currencyFormat != "₹") {
-                return res.status(400).send({ status: false, message: "please provide valid  currencyFormat i.e ₹ " })
-            }
-        } else {
-            return res.status(400).send({ status: false, message: "please enter currencyFormat" })
-        }
+            requestBody['currencyFormat'] = getSymbolFromCurrency(currencyId)
 
-        if (style) {
+
+        } 
+
+        if ('style' in req.body) {
             if (typeof style !== 'string') {
                 return res.status(400).send({ status: false, message: "style must be in string" })
             }
         }
 
 
-        if (!validator.isValidString(availableSizes)) {
+        if (!('availableSizes' in req.body)) {
             return res.status(400).send({ status: false, message: "please enter availableSizes " })
         }
         //validation ends 
@@ -78,7 +79,9 @@ const createProduct = async function (req, res) {
         }
 
         // checking the available size is correct or not
-        console.log(availableSizes)
+
+        availableSizes = JSON.parse(availableSizes);
+
         let availableSizesInArray = availableSizes.map(x => x.trim())
 
         for (let i = 0; i < availableSizesInArray.length; i++) {
@@ -118,10 +121,14 @@ const productsDetails = async function (req, res) {
         const finalFilter = [{ isDeleted: false }]
 
         // checking the requestQuery input valid or not
-        if (validator.isValidString(name)) {
+        if ('name' in req.query) {
+            if (!validator.isValidtitle(name)) {
+                return res.status(400).send({ status: false, message: "provide the valid name for filter" })
+            }
+
             finalFilter.push({ title: { $regex: name, $options: 'i' } })
         }
-        if (validator.isValidString(size)) {
+        if ('size' in req.query) {
             if (["S", "XS", "M", "X", "L", "XXL", "XL"].indexOf(size) == -1) {
                 return res.status(400).send({ status: false, message: "please enter valid size  " })
             }
@@ -132,17 +139,27 @@ const productsDetails = async function (req, res) {
             return res.status(400).send({ status: false, message: "only give one priceSort value i.e 1 or-1" })
         }
 
-        if (validator.isValidNumber(priceGreaterThan)) {
+        if ('priceGreaterThan' in req.query) {
+            if (validator.isValidNumber(priceGreaterThan)) {
 
-            finalFilter.push({ price: { $gt: priceGreaterThan } })
+                finalFilter.push({ price: { $gt: priceGreaterThan } })
+            } else {
+                return res.status(400).send({ status: false, message: "provide the valid priceGreaterThan for filter" })
+            }
         }
-        if (validator.isValidNumber(priceLessThan)) {
+        
+        if ('priceLessThan' in req.query) {
+            if (validator.isValidNumber(priceLessThan)) {
 
-            finalFilter.push({ price: { $lt: priceLessThan } })
+                finalFilter.push({ price: { $lt: priceLessThan } })
+            }
+            else {
+                return res.status(400).send({ status: false, message: "provide the valid priceLessThan for filter" })
+            }
         }
 
         // if there is priceSort to sort the doc 
-        if (priceSort) {
+        if ('priceSort' in req.query) {
             if (validator.isValidNumber(priceSort)) {
 
                 if (priceSort != 1 && priceSort != -1) {
@@ -155,6 +172,8 @@ const productsDetails = async function (req, res) {
                 }
 
                 return res.status(200).send({ status: true, message: "products with sorted price", data: fillteredProductsWithPriceSort })
+            } else {
+                return res.status(400).send({ status: false, message: "priceSort must be number" })
             }
         }
 
@@ -223,54 +242,59 @@ const updateProduct = async function (req, res) {
             return res.status(400).send({ status: false, message: "please provide valid productId" })
         }
 
+        if ('title' in req.body) {
+            if (validator.isValidtitle(title)) {
+                const isTitleAlreadyExists = await productModel.findOne({ title: title })
 
-        if (validator.isValidString(title)) {
-            const isTitleAlreadyExists = await productModel.findOne({ title: title })
+                if (isTitleAlreadyExists) {
+                    return res.status(400).send({ status: false, message: "title already used" })
+                }
+                finalFilter["title"] = title
 
-            if (isTitleAlreadyExists) {
-                return res.status(400).send({ status: false, message: "title already used" })
+            } else {
+                return res.status(400).send({ status: false, message: "title should be valid to update" })
             }
-            finalFilter["title"] = title
-
         }
-
-        if (validator.isValidString(description)) {
+        if ('description' in req.body) {
+            if (!validator.isValid(description)) {
+                return res.status(400).send({ status: false, message: "please enter price and it must be number" })
+            }
             finalFilter["description"] = description
         }
 
-
-        if (price) {
+        if ('price' in req.body) {
             if (!validator.isValidNumber(price)) {
                 return res.status(400).send({ status: false, message: "please enter price and it must be number" })
             }
             finalFilter["price"] = price
         }
 
-        if (validator.isValidNumber(installments)) {
-            finalFilter["installments"] = installments
+
+        if ('installments' in req.body) {
+            if (validator.isValid(installments)) {
+                if (!/^[0-9]$/.test(installments)) {
+                    return res.status(400).send({ status: false, message: " installment   must be number" })
+                }
+
+                finalFilter["installments"] = installments
+            } else {
+                return res.status(400).send({ status: false, message: "installment   must be number" })
+            }
         }
 
-        if (validator.isValidString(isFreeShipping)) {
+        if ('isFreeShipping' in req.body) {
+            if (validator.isValid(isFreeShipping)) {
 
-            if (isFreeShipping !== 'true' && isFreeShipping != 'false') {
+                if (isFreeShipping !== 'true' && isFreeShipping != 'false') {
+                    return res.status(400).send({ status: false, message: "isFreeShipping  must be in boolean to update " })
+                }
+                finalFilter["isFreeShipping"] = isFreeShipping
+            } else {
                 return res.status(400).send({ status: false, message: "isFreeShipping  must be in boolean to update " })
             }
-            finalFilter["isFreeShipping"] = isFreeShipping
         }
 
-        if (validator.isValidString(currencyFormat)) {
-            if (currencyFormat != "₹") {
-                return res.status(400).send({ status: false, message: "please provide valid  currencyFormat i.e ₹ " })
-            }
-            finalFilter["currencyFormat"] = currencyFormat
-        }
-        if (validator.isValidString(currencyId)) {
-            if (currencyId != "INR") {
-                return res.status(400).send({ status: false, message: "please provide valid currencyId i.e INR " })
-            }
-            finalFilter["currencyId"] = currencyId
-        }
-        if (style) {
+        if ('style' in req.body) {
             if (typeof style !== 'string') {
                 return res.status(400).send({ status: false, message: "style must be in string" })
             }
@@ -279,7 +303,8 @@ const updateProduct = async function (req, res) {
 
 
         // availableSize is in requstBody then
-        if (availableSizes) {
+
+        if ('availableSizes' in req.body) {
             // checking the length it should not be zero
             if (availableSizes.length == 0) {
                 return res.status(400).send({ status: false, message: "availableSizes should not be empty" })
