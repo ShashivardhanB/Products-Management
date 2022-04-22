@@ -97,9 +97,6 @@ const createCart = async function (req, res) {
 
             // updating the new items and totalPrice and tOtalItems
             const addToCart = await cartModel.findOneAndUpdate({ _id: cartId }, cartDataToAddProduct, { new: true })
-            if (!addToCart) {
-                return res.status(409).send({ status: false, message: "failed to update" })
-            }
             return res.status(200).send({ status: true, message: "product add to cart successfully", data: addToCart })
 
         }
@@ -129,10 +126,6 @@ const createCart = async function (req, res) {
 
         // creating the new cart with adding the products
         const cartCreation = await cartModel.create(cartDataToCreate)
-        if (!cartCreation) {
-            return res.status(409).send({ status: false, message: "failed to create" })
-
-        }
         return res.status(201).send({ status: true, message: "cart created", data: cartCreation })
 
 
@@ -201,7 +194,7 @@ const updateCart = async function (req, res) {
         
         // ---------------------------------------------------------------------------------------------
         let arrayOfItems = isCartExists.items
-        console.log(arrayOfItems)
+
         if (arrayOfItems.length == 0) {
             return res.status(400).send({ status: false, message: "items is empty noting to update" })
         }
