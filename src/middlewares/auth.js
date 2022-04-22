@@ -21,8 +21,7 @@ const auth = async function (req, res, next) {
 
     }
     catch (error) {
-
-
+        
         if (error.message == "invalid token") return res.status(401).send({ status: false, msg: "authentication failed May be your header part currupt" }) // failed ka 401 ?
         if (error.message.startsWith("Unexpected")) return res.status(401).send({ status: false, msg: "authentication failed May be your payload part currupt" }) // failed ka 401 ?
         if (error.message == "invalid signature") return res.status(401).send({ status: false, msg: "authentication failed May be your singature part currupt" }) // failed ka 401 ?
@@ -31,8 +30,6 @@ const auth = async function (req, res, next) {
         return res.status(500).send({ status: false, msg: error.message })
 
     }
-
-
 }
 
 

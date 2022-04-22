@@ -76,8 +76,6 @@ const createProduct = async function (req, res) {
 
         // checking the available size is correct or not
 
-        // availableSizes = JSON.parse(availableSizes);
-
         let availableSizesInArray = availableSizes.split(",").map(x => x.trim())
 
         for (let i = 0; i < availableSizesInArray.length; i++) {
