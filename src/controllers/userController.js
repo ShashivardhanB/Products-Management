@@ -140,27 +140,22 @@ const userLogin = async function (req, res) {
         if (password.length < 8 || password.length > 15) {
             return res.status(400).send({ status: false, mesaage: "password length should be inbetween 8 and 15 " })
         }
-
+       
         if (!validator.isValidStrongPassword(password)) {
             return res.status(400).send({ status: false, message: "password  is mandatory and make sure the password is strong Example: Password@123" })
         }
 
-        // checking for password length 
-        if (password.length < 8 || password.length > 15) {
-            return res.status(400).send({ status: false, mesaage: "password length should be inbetween 8 and 15 " })
-        }
-
-
+    
         //checking that user Exists or not
         const isUserExists = await userModel.findOne({ email: email })
 
         if (isUserExists) {
             const isPasswordCorrect = await bcrypt.compare(password, isUserExists.password);             //checking that password is correct or not
             if (!isPasswordCorrect) {
-                return res.status(400).send({ status: false, message: "email or password is wrong" })
+                return res.status(400).send({ status: false, message: "Invalid login credentials" })
             }
         } else {
-            return res.status(400).send({ status: false, message: "email or password is wrong" })
+            return res.status(400).send({ status: false, message: "email is not registered" })
         }
 
         //creating the jwt Token
@@ -190,7 +185,7 @@ const userDetails = async function (req, res) {
         }
 
         //checking userId exists nor not
-        const userData = await userModel.findById({ _id: userId })
+        const userData = await userModel.findById( userId )
         if (!userData) {
             return res.status(404).send({ status: false, message: "data not found" })
         }
@@ -258,7 +253,7 @@ const updateProfile = async function (req, res) {
             if (!validator.isValidEmail(email)) {
                 return res.status(400).send({ status: false, message: "EMAIL is not valid to update" })
             }
-            const isEmailAlreadyUsed = await userModel.findOne({ email })                           //checking the email already used
+            const isEmailAlreadyUsed = await userModel.findOne({ email ,_id:{$ne:userId}})                           //checking the email already used
             if (isEmailAlreadyUsed) {
                 return res.status(400).send({ status: false, message: "email already used " })
             }
@@ -271,7 +266,7 @@ const updateProfile = async function (req, res) {
             if (!!validator.isValidPhoneNumber(phone)) {
                 return res.status(400).send({ status: false, message: " phoneNumber is not valid to update" });
             }
-            const isphoneNumberAlreadyUsed = await userModel.findOne({ phone })                           //checking the number already used
+            const isphoneNumberAlreadyUsed = await userModel.findOne({ phone,_id:{$ne:userId} })                           //checking the number already used
             if (isphoneNumberAlreadyUsed) {
                 return res.status(400).send({ status: false, message: "phoneNumber already used " })
             }

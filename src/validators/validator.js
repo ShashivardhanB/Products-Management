@@ -31,11 +31,9 @@ const isValidChar = function (value) {
 }
 
 const isValidStreet = function (value) {
-  if (/^[A-Za-z0-9\.\:\;\=\-\s]$/.test(value)) return true
+  if (/^[A-Za-z0-9\s\W]+$/.test(value)) return true
   return false
 }
-
-
 const isValidCity = function (value) {
   if (/^[A-Za-z\s]$/.test(value)) return true
   return false
@@ -59,19 +57,22 @@ const isValidAddress = function (value) {
 };
 
 const isValidPincode = function (value) {
-  if (/^[1-9][0-9]{5}$/.test(value)) return true
+  if (/^[1-9]{1}[0-9]{5}$/.test(value)) return true
   return false
 }
+
 const isValidtitle = function (value) {
-  if (/^[A-Za-z\s]$/.test(value)) return true
+  if (/^[A-Za-z\s]+$/.test(value)) return true
   return false
 }
+
 
 const isValidStrongPassword = function (value) {
   if (/^((?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[\W]).{8,15})$/.test(value)) return true
   return false
 
 }
+
 
 
 

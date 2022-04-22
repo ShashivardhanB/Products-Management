@@ -80,9 +80,9 @@ const createProduct = async function (req, res) {
 
         // checking the available size is correct or not
 
-        availableSizes = JSON.parse(availableSizes);
+        // availableSizes = JSON.parse(availableSizes);
 
-        let availableSizesInArray = availableSizes.map(x => x.trim())
+        let availableSizesInArray = availableSizes.split(",").map(x => x.trim())
 
         for (let i = 0; i < availableSizesInArray.length; i++) {
             if (["S", "XS", "M", "X", "L", "XXL", "XL"].indexOf(availableSizesInArray[i]) == -1) {
@@ -244,7 +244,7 @@ const updateProduct = async function (req, res) {
 
         if ('title' in req.body) {
             if (validator.isValidtitle(title)) {
-                const isTitleAlreadyExists = await productModel.findOne({ title: title })
+                const isTitleAlreadyExists = await productModel.findOne({ title: title ,_id:{$ne:productId}})
 
                 if (isTitleAlreadyExists) {
                     return res.status(400).send({ status: false, message: "title already used" })
@@ -305,16 +305,9 @@ const updateProduct = async function (req, res) {
         // availableSize is in requstBody then
 
         if ('availableSizes' in req.body) {
-            // checking the length it should not be zero
-            if (availableSizes.length == 0) {
-                return res.status(400).send({ status: false, message: "availableSizes should not be empty" })
-            }
-
-            //  checking availableSize must be array or not
-            if (Array.isArray(availableSizes)) {
-
-                // romoving the space if present in array
-                let availableSizesInArray = availableSizes.map(x => x.trim())
+            
+                // converting the string into array
+                let availableSizesInArray = availableSizes.split(",").map(x => x.trim())
                 //itearting to access every element to check it is valid or not
                 for (let i = 0; i < availableSizesInArray.length; i++) {
 
@@ -324,10 +317,9 @@ const updateProduct = async function (req, res) {
                         finalFilter["availableSizes"] = availableSizesInArray
                     }
                 }
-            } else {
-                return res.status(400).send({ status: false, message: "avaliableSize should be in array " })
-            }
-        }
+            } 
+          
+        
 
         let files = req.files
         if (files && files.length > 0) {
