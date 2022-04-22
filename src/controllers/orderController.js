@@ -85,7 +85,7 @@ const createOrder = async function (req, res) {
         }
 
         const ordercreation = await orderModel.create(finalFilter)
-        return res.status(201).send({ status: true, message: "successfully order created", data: ordercreation })
+        return res.status(201).send({ status: true, message: "Success", data: ordercreation })
 
     } catch (err) {
         return res.status(500).send({ status: false, message: err.message })
@@ -165,7 +165,7 @@ const updateOrder = async function (req, res) {
 
         const updatedData = await orderModel.findOneAndUpdate({ _id: orderId }, { status: status }, { new: true })
 
-        return res.status(200).send({ status: true, message: "order updated successfully", data: updatedData })
+        return res.status(200).send({ status: true, message: "Success", data: updatedData })
 
     } catch (err) {
         return res.status(500).send({ status: false, message: err.message })

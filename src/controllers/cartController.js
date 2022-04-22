@@ -187,7 +187,7 @@ const updateCart = async function (req, res) {
         }
 
         if (isCartExists.userId != userId) {
-            return res.status({ status: false, message: "this cart is not belongs to this userid " })
+            return res.status(400).send({ status: false, message: "this cart is not belongs to this userid " })
         }
 
 
@@ -210,7 +210,7 @@ const updateCart = async function (req, res) {
                     }
 
                     const productToDeleteFromCart = await cartModel.findOneAndUpdate({ items: { $elemMatch: { productId: arrayOfItems[i].productId } } }, finalFilterToDelete, { new: true })
-                    return res.status(200).send({ status: true, message: "product successfully removed", data: productToDeleteFromCart })
+                    return res.status(200).send({ status: true, message: "Success", data: productToDeleteFromCart })
                 }
 
 
@@ -225,7 +225,7 @@ const updateCart = async function (req, res) {
 
                 const productToRemoveFromCart = await cartModel.findOneAndUpdate({ _id: cartId }, finalFilterToremoveQuantity, { new: true })
 
-                return res.status(200).send({ status: true, message: "cart updated successfully", data: productToRemoveFromCart })
+                return res.status(200).send({ status: true, message: "Success", data: productToRemoveFromCart })
 
             }
 
@@ -264,7 +264,7 @@ const getCartDetails = async function (req, res) {
         if (!isCartExists) {
             return res.status(404).send({ status: false, message: "cart data not found" })
         } else {
-            return res.status(200).send({ status: true, message: "fetched cart details", data: isCartExists })
+            return res.status(200).send({ status: true, message: "Success", data: isCartExists })
         }
 
 
@@ -311,7 +311,7 @@ const deleteCart = async function (req, res) {
 
         const cartDeletion = await cartModel.findOneAndUpdate({ _id: isCartExists._id }, finalFilterForDeleting, { new: true })
 
-        return res.status(200).send({ status: true, message: "cart details deleted successfully", data: cartDeletion })
+        return res.status(200).send({ status: true, message: "Success", data: cartDeletion })
 
 
 

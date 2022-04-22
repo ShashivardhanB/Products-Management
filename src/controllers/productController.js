@@ -100,7 +100,7 @@ const createProduct = async function (req, res) {
 
             }
             const productData = await productModel.create(requestBody)
-            return res.status(201).send({ status: true, message: "product created successfully", data: productData })
+            return res.status(201).send({ status: true, message: "Success", data: productData })
         }
 
     } catch (err) {
@@ -171,7 +171,7 @@ const productsDetails = async function (req, res) {
                     return res.status(404).send({ status: false, message: "data not found" })
                 }
 
-                return res.status(200).send({ status: true, message: "products with sorted price", data: fillteredProductsWithPriceSort })
+                return res.status(200).send({ status: true, message: "Success", data: fillteredProductsWithPriceSort })
             } else {
                 return res.status(400).send({ status: false, message: "priceSort must be number" })
             }
@@ -184,7 +184,7 @@ const productsDetails = async function (req, res) {
             return res.status(404).send({ status: false, message: "data not found" })
         }
 
-        return res.status(200).send({ status: true, message: "products without sorted price", data: fillteredProducts })
+        return res.status(200).send({ status: true, message: "Success", data: fillteredProducts })
 
 
     } catch (err) {
@@ -210,7 +210,7 @@ const getProductsById = async function (req, res) {
             return res.status(404).send({ status: false, message: "no data found" })
         }
 
-        return res.status(200).send({ status: true, message: "product By Id ", data: productData })
+        return res.status(200).send({ status: true, message: "Success", data: productData })
 
     } catch (err) {
         return res.status(500).send({ status: false, message: err.message })
@@ -227,8 +227,8 @@ const updateProduct = async function (req, res) {
         const requestBody = req.body
         const productId = req.params.productId
 
-        const { title, description, price, currencyId, currencyFormat,
-            isFreeShipping, style, availableSizes, installments } = requestBody                 // distructing the requestBody
+        const { title, description, price, isFreeShipping, 
+            style, availableSizes, installments } = requestBody                 // distructing the requestBody
 
         const finalFilter = {}
 
@@ -331,7 +331,7 @@ const updateProduct = async function (req, res) {
             return res.status(404).send({ status: false, message: "data not found" })
         }
 
-        return res.status(200).send({ status: false, message: "product updated successfully ", data: updatedProductDetails })
+        return res.status(200).send({ status: true, message: "Success", data: updatedProductDetails })
 
     } catch (err) {
         return res.status(500).send({ status: false, message: err.message })
@@ -357,7 +357,7 @@ const deleteProductByProductId = async function (req, res) {
             return res.status(404).send({ status: false, message: "data not found" })
         }
 
-        return res.status(200).send({ status: true, message: "product is deleted", data: deletedproduct })
+        return res.status(200).send({ status: true, message: "Success", data: deletedproduct })
 
     } catch (err) {
         return res.status(500).send({ status: false, message: err.message })

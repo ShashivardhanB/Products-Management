@@ -106,7 +106,7 @@ const createUser = async function (req, res) {
 
 
         let user = await userModel.create(requestBody)
-        res.status(201).send({ status: true, message: 'User created successfully', data: user })
+        res.status(201).send({ status: true, message: 'Success', data: user })
 
     }
     catch (err) {
@@ -164,7 +164,7 @@ const userLogin = async function (req, res) {
         }, "project5shoppingCart", { expiresIn: "1d" })
 
         res.header("Authorization", "Bearer " + token);
-        return res.status(200).send({ status: true, message: "User login successfull", data: { userId: isUserExists._id, token: token } })
+        return res.status(200).send({ status: true, message: "Success", data: { userId: isUserExists._id, token: token } })
     } catch (err) {
         return res.status(500).send({ status: false, message: err.mesaage })
     }
@@ -199,7 +199,7 @@ const userDetails = async function (req, res) {
             return res.status(404).send({ status: false, message: "data not found" })
         }
 
-        return res.status(200).send({ status: true, message: "User profile details", data: userData })
+        return res.status(200).send({ status: true, message: "Success", data: userData })
 
 
     } catch (err) {
@@ -325,7 +325,7 @@ const updateProfile = async function (req, res) {
         
         const postData = await userModel.findOneAndUpdate({ _id: userId }, { $set: finalFilter }, { new: true })
 
-        return res.status(200).send({ status: true, message: "User profile updated", data: postData })
+        return res.status(200).send({ status: true, message: "Success", data: postData })
 
     } catch (err) {
         return res.status(500).send({ status: false, message: err.message })
